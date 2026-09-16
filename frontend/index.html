@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CampusFind - Login</title>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <div class="login-wrapper">
+    <div class="login-card">
+      <div class="login-header">
+        <div class="brand"><span class="brand-icon">🎒</span> CampusFind</div>
+        <p>Student Lost &amp; Found Portal</p>
+      </div>
+
+      <div class="demo-credentials">
+        <strong>Demo login credentials</strong>
+        Username: <b>student</b> &nbsp;|&nbsp; Password: <b>1234</b>
+      </div>
+
+      <div id="loginAlert" class="alert alert-error"></div>
+
+      <form id="loginForm" novalidate>
+        <div class="form-group">
+          <label for="username">Username</label>
+          <input type="text" id="username" name="username" placeholder="Enter username" autocomplete="username" />
+        </div>
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" name="password" placeholder="Enter password" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="btn btn-primary btn-block" id="loginBtn">Login</button>
+      </form>
+
+      <p class="footer-note">CampusFind &middot; Built for a college portfolio project</p>
+    </div>
+  </div>
+
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script>
+    // If already logged in, skip straight to dashboard.
+    if (getSession()?.token) {
+      window.location.href = "dashboard.html";
+    }
+
+    const form = document.getElementById("loginForm");
+    const alertBox = document.getElementById("loginAlert");
+    const loginBtn = document.getElementById("loginBtn");
+
+    function showAlert(message) {
+      alertBox.textContent = message;
+      alertBox.style.display = "block";
+    }
+
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      alertBox.style.display = "none";
+
+      const username = document.getElementById("username").value.trim();
+      const password = document.getElementById("password").value.trim();
+
+      if (!username || !password) {
+        showAlert("Please enter both username and password.");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.textContent = "Logging in...";
+
+      try {
+        const data = await Api.login(username, password);
+        saveSession(data.username, data.token);
+        window.location.href = "dashboard.html";
+      } catch (err) {
+        showAlert(err.message || "Login failed. Please try again.");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.textContent = "Login";
+      }
+    });
+  </script>
+</body>
+</html>
